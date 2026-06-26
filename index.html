@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPUT Blackboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cput-bg: #1a1a1a;
+    --cput-text: #ffffff;
+    --cput-muted: #b3b3b3;
+    --cput-border: #ffffff;
+    --bb-lilac: #bfa2ff; /* for reveal */
+  }
+    * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cput-bg);
+    color: var(--cput-text);
+    overflow: hidden;
+  }
+
+  /* SCREEN 1: CPUT DARK LOGIN - MATCHES YOUR PIC */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 24px;
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .hidden { opacity: 0; transform: scale(.98); pointer-events: none; }
+
+  .cput-logo {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    margin: 40px 0 50px;
+    padding: 20px;
+  }
+
+  .login-form { width: 100%; max-width: 380px; }
+  .input-group { margin-bottom: 40px; }
+  .input-label {
+    display: block; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;
+  }
+  .bb-input {
+    width: 100%; padding: 8px 0;
+    background: transparent; border: none; border-bottom: 2px solid var(--cput-border);
+    color: var(--cput-text); font-size: 1rem;
+  }
+  .bb-input:focus { outline: none; border-bottom-color: var(--bb-lilac); }
+
+  .bb-btn {
+    width: 100%; padding: 14px;
+    background: transparent; color: var(--cput-text);
+    border: 2px solid var(--cput-border); border-radius: 0;
+    font-weight: 600; font-size: 1rem;
+    cursor: pointer; margin-top: 20px;
+  }
+  .bb-btn:hover { background: rgba(255,255,255,.1); }
+
+  .third-party {
+    width: 100%; padding: 12px 14px; margin-top: 20px;
+    background: #555; color: var(--cput-text); border: none; border-radius: 4px;
+    font-size: .9rem; appearance: none; text-align: left;
+  }
+  .catalogue-link {
+    margin-top: auto; padding-top: 40px;
+    color: var(--cput-muted); text-decoration: underline; font-size: .9rem;
+  }
+
+  /* SCREEN 2: BIRTHDAY REVEAL - LILAC THEME */
+  body.revealed { background: #0a0a0f; }
+  .reveal { overflow-y: auto; }
+  .container { max-width: 800px; width: 100%; padding: 80px 24px; margin: 0 auto; }
+  .glass {
+    background: rgba(245,245,247,0.05); border: 1px solid rgba(245,245,247,0.1);
+    backdrop-filter: blur(16px); border-radius: 24px; padding: 28px; margin-bottom: 24px;
+  }
+  h2 { font-size: 2.6rem; margin: 0 0 8px; font-family: 'Playfair Display', serif; color: #f5f5f7; text-align: center; }
+  .kicker { color: var(--bb-lilac); font-weight: 800; letter-spacing: .1em; font-size: .8rem; display: block; text-align: center; }
+
+  .photo-wrap { 
+    max-width: 420px; 
+    margin: 28px auto 0; 
+    overflow: hidden; 
+    border-radius: 20px; 
+    border: 1px solid rgba(191,162,255,.25);
+    background: #000;
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  .photo-wrap.animate-in {
+    animation: slideDown .9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @keyframes slideDown {
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .label { text-align: center; font-weight: 700; margin-top: 10px; color: #a0a0b0; }
+
+  .vs-caption { 
+    text-align:center; 
+    color:#a0a0b0; 
+    margin-top:16px; 
+    font-size: 1.05rem; 
+    line-height: 1.7;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .vs-caption.show {
+    animation: fadeUp .6s ease .9s forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter { line-height: 1.9; color: #a0a0b0; font-size: 1.1rem; }
+  .letter p { margin: 0 0 14px; }
+  footer { text-align: center; color: #a0a0b0; padding: 40px 0; }
+
+  .confetti { position: fixed; width: 8px; height: 14px; top: -20px; opacity: 0; animation: fall 3.5s linear forwards; border-radius: 2px; }
+  @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: CPUT DARK LOGIN -->
+<section id="screen1" class="screen">
+  <!-- CPUT LOGO PNG -->
+  <div class="cput-logo">
+    <a href="https://ibb.co/VpPStcFf"><img src="https://i.ibb.co/S79nP4kF/cput-logo.jpg" alt="cput logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+  </div>
+
+  <form class="login-form" onsubmit="reveal(); return false;">
+    <div class="input-group">
+      <label class="input-label">Username</label>
+      <input class="bb-input" type="text" value="221191259 " readonly>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="bb-input" type="password" value="••••" readonly>
+    </div>
+    
+    <button type="submit" class="bb-btn">Sign In</button>
+    
+    <select class="third-party">
+      <option>Sign in with a third-party account</option>
+    </select>
+  </form>
+
+  <a href="#" class="catalogue-link">View Course Catalogue</a>
+</section>
+
+<!-- SCREEN 2: BIRTHDAY REVEAL -->
+<section id="screen2" class="screen reveal hidden">
+  <div class="container">
+    <span class="kicker">BELATED, BUT ON PURPOSE NOW</span>
+    <h2>Happy Belated Birthday, Kuhle 💜</h2>
+    <p style="color:#a0a0b0; margin:0 0 8px; text-align:center;">Wrong portal. Right surprise 😏</p>
+
+    <div class="glass">
+      <h3 style="margin:0 0 12px; text-align:center; color:#f5f5f7;">2026</h3>
+      <div class="photo-wrap" id="photoWrap">
+        <div class="photo-card">
+          <a href="https://ibb.co/MJh1WQm"><img src="https://i.ibb.co/9dv4zS7/kuhle.jpg" alt="kuhle" border="0"></a>
+        </div>
+        <div class="label">The woman you’ve become</div>
+      </div>
+      <p class="vs-caption" id="caption">
+        From the little girl I met to this still small, to be fair, woman.<br>But you’ve grown in the most important of ways. I’m very proud of the woman you’ve become.
+      </p>
+    </div>
+
+    <div class="glass letter">
+      <p>Happy birthday to the pocket-sized disaster I’m lucky to call my person 😂</p>
+      
+      <p>You’re short, yes. But you’re also the biggest proof that the best things come in 5-foot-nothing packages...</p>
+      <p>You’re clumsy, also true. Gravity just really likes you, huh?...</p>
+      <p>And bad luck? Nah. The only bad luck in your life is everyone else...</p>
+      <p>From 2018 till now you’ve been the one I can always count on...</p>
+      <p>May your year be soft, loud, and exactly how you want it...</p>
+      <p>Love you lots, you lilac-loving, short-stacked, clumsy queen.<br>– Migcobo </p>
+      <p style="font-size:.95rem; opacity:.8;">P.S. 7 days late, 0 regrets. You’re worth the wait. Also duck when you walk through doorframes.</p>
+    </div>
+    <footer>7 days late, plenty of regrets, but You’re worth the wait 💜</footer>
+  </div>
+</section>
+
+<script>
+  function reveal() {
+    document.body.classList.add('revealed');
+    document.getElementById('screen1').classList.add('hidden');
+    document.getElementById('screen2').classList.remove('hidden');
+    document.body.style.overflow = 'auto';
+    confetti();
+    setTimeout(() => {
+      document.getElementById('photoWrap').classList.add('animate-in');
+      document.getElementById('caption').classList.add('show');
+    }, 100);
+  }
+  function confetti() {
+    const colors = ['#bfa2ff','#ffffff','#d8c8ff','#003366','#00AEEF'];
+    for(let i=0;i<140;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*100+'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDelay = Math.random()*0.6+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),3500);
+    }
+  }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPUT Blackboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cput-bg: #1a1a1a;
+    --cput-text: #ffffff;
+    --cput-muted: #b3b3b3;
+    --cput-border: #ffffff;
+    --bb-lilac: #bfa2ff; /* for reveal */
+  }
+    * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cput-bg);
+    color: var(--cput-text);
+    overflow: hidden;
+  }
+
+  /* SCREEN 1: CPUT DARK LOGIN - MATCHES YOUR PIC */
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 24px;
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .hidden { opacity: 0; transform: scale(.98); pointer-events: none; }
+
+  .cput-logo {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    margin: 40px 0 50px;
+    padding: 20px;
+  }
+
+  .login-form { width: 100%; max-width: 380px; }
+  .input-group { margin-bottom: 40px; }
+  .input-label {
+    display: block; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;
+  }
+  .bb-input {
+    width: 100%; padding: 8px 0;
+    background: transparent; border: none; border-bottom: 2px solid var(--cput-border);
+    color: var(--cput-text); font-size: 1rem;
+  }
+  .bb-input:focus { outline: none; border-bottom-color: var(--bb-lilac); }
+
+  .bb-btn {
+    width: 100%; padding: 14px;
+    background: transparent; color: var(--cput-text);
+    border: 2px solid var(--cput-border); border-radius: 0;
+    font-weight: 600; font-size: 1rem;
+    cursor: pointer; margin-top: 20px;
+  }
+  .bb-btn:hover { background: rgba(255,255,255,.1); }
+
+  .third-party {
+    width: 100%; padding: 12px 14px; margin-top: 20px;
+    background: #555; color: var(--cput-text); border: none; border-radius: 4px;
+    font-size: .9rem; appearance: none; text-align: left;
+  }
+  .catalogue-link {
+    margin-top: auto; padding-top: 40px;
+    color: var(--cput-muted); text-decoration: underline; font-size: .9rem;
+  }
+
+  /* SCREEN 2: BIRTHDAY REVEAL - LILAC THEME */
+  body.revealed { background: #0a0a0f; }
+  .reveal { overflow-y: auto; }
+  .container { max-width: 800px; width: 100%; padding: 80px 24px; margin: 0 auto; }
+  .glass {
+    background: rgba(245,245,247,0.05); border: 1px solid rgba(245,245,247,0.1);
+    backdrop-filter: blur(16px); border-radius: 24px; padding: 28px; margin-bottom: 24px;
+  }
+  h2 { font-size: 2.6rem; margin: 0 0 8px; font-family: 'Playfair Display', serif; color: #f5f5f7; text-align: center; }
+  .kicker { color: var(--bb-lilac); font-weight: 800; letter-spacing: .1em; font-size: .8rem; display: block; text-align: center; }
+
+  .photo-wrap { 
+    max-width: 420px; 
+    margin: 28px auto 0; 
+    overflow: hidden; 
+    border-radius: 20px; 
+    border: 1px solid rgba(191,162,255,.25);
+    background: #000;
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  .photo-wrap.animate-in {
+    animation: slideDown .9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @keyframes slideDown {
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .label { text-align: center; font-weight: 700; margin-top: 10px; color: #a0a0b0; }
+
+  .vs-caption { 
+    text-align:center; 
+    color:#a0a0b0; 
+    margin-top:16px; 
+    font-size: 1.05rem; 
+    line-height: 1.7;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .vs-caption.show {
+    animation: fadeUp .6s ease .9s forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter { line-height: 1.9; color: #a0a0b0; font-size: 1.1rem; }
+  .letter p { margin: 0 0 14px; }
+  footer { text-align: center; color: #a0a0b0; padding: 40px 0; }
+
+  .confetti { position: fixed; width: 8px; height: 14px; top: -20px; opacity: 0; animation: fall 3.5s linear forwards; border-radius: 2px; }
+  @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: CPUT DARK LOGIN -->
+<section id="screen1" class="screen">
+  <!-- CPUT LOGO PNG -->
+  <div class="cput-logo">
+    <img src="cput-logo.png" alt="CPUT Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+  </div>
+
+  <form class="login-form" onsubmit="reveal(); return false;">
+    <div class="input-group">
+      <label class="input-label">Username</label>
+      <input class="bb-input" type="text" value="221191259 " readonly>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="bb-input" type="password" value="••••" readonly>
+    </div>
+    
+    <button type="submit" class="bb-btn">Sign In</button>
+    
+    <select class="third-party">
+      <option>Sign in with a third-party account</option>
+    </select>
+  </form>
+
+  <a href="#" class="catalogue-link">View Course Catalogue</a>
+</section>
+
+<!-- SCREEN 2: BIRTHDAY REVEAL -->
+<section id="screen2" class="screen reveal hidden">
+  <div class="container">
+    <span class="kicker">BELATED, BUT ON PURPOSE NOW</span>
+    <h2>Happy Belated Birthday, Kuhle 💜</h2>
+    <p style="color:#a0a0b0; margin:0 0 8px; text-align:center;">Wrong portal. Right surprise 😏</p>
+
+    <div class="glass">
+      <h3 style="margin:0 0 12px; text-align:center; color:#f5f5f7;">2026</h3>
+      <div class="photo-wrap" id="photoWrap">
+        <div class="photo-card">
+          <img src="kuhle.jpg" alt="Kuhle Graduation 2026">
+        </div>
+        <div class="label">The woman you’ve become</div>
+      </div>
+      <p class="vs-caption" id="caption">
+        From the little girl I met to this still small, to be fair, woman.<br>But you’ve grown in the most important of ways. I’m very proud of the woman you’ve become.
+      </p>
+    </div>
+
+    <div class="glass letter">
+      <p>Happy birthday to the pocket-sized disaster I’m lucky to call my person 😂</p>
+      
+      <p>You’re short, yes. But you’re also the biggest proof that the best things come in 5-foot-nothing packages...</p>
+      <p>You’re clumsy, also true. Gravity just really likes you, huh?...</p>
+      <p>And bad luck? Nah. The only bad luck in your life is everyone else...</p>
+      <p>From 2018 till now you’ve been the one I can always count on...</p>
+      <p>May your year be soft, loud, and exactly how you want it...</p>
+      <p>Love you lots, you lilac-loving, short-stacked, clumsy queen.<br>– Migcobo </p>
+      <p style="font-size:.95rem; opacity:.8;">P.S. 7 days late, 0 regrets. You’re worth the wait. Also duck when you walk through doorframes.</p>
+    </div>
+    <footer>7 days late, plenty of regrets, but You’re worth the wait 💜</footer>
+  </div>
+</section>
+
+<script>
+  function reveal() {
+    document.body.classList.add('revealed');
+    document.getElementById('screen1').classList.add('hidden');
+    document.getElementById('screen2').classList.remove('hidden');
+    document.body.style.overflow = 'auto';
+    confetti();
+    setTimeout(() => {
+      document.getElementById('photoWrap').classList.add('animate-in');
+      document.getElementById('caption').classList.add('show');
+    }, 100);
+  }
+  function confetti() {
+    const colors = ['#bfa2ff','#ffffff','#d8c8ff','#003366','#00AEEF'];
+    for(let i=0;i<140;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*100+'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDelay = Math.random()*0.6+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),3500);
+    }
+  }
+</script>
+</body>
+</html>
