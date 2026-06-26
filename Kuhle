@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackboard Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bb-black: #0a0a0f;
+    --bb-lilac: #bfa2ff;
+    --bb-white: #f5f5f7;
+    --bb-grey: #1e1e24;
+    --bb-border: #2a2a33;
+    --bb-text: #e8e8ee;
+    --bb-muted: #a0a0b0;
+  }
+    * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bb-black);
+    color: var(--bb-text);
+    overflow: hidden;
+  }
+
+  /* SCREEN 1: FAKE BLACKBOARD LOGIN */
+  .screen {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    padding: 24px;
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .hidden { opacity: 0; transform: scale(.98); pointer-events: none; }
+
+  .bb-card {
+    width: 100%; max-width: 420px;
+    background: var(--bb-grey);
+    border: 1px solid var(--bb-border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .bb-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+  }
+  .bb-logo-dot { width: 12px; height: 12px; background: var(--bb-lilac); border-radius: 50%; }
+  .bb-logo-text { font-weight: 700; font-size: 1.1rem; letter-spacing: .2px; }
+  .bb-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 6px; }
+  .bb-sub { color: var(--bb-muted); font-size: .9rem; margin: 0 0 20px; }
+
+  .bb-input {
+    width: 100%; padding: 12px 14px; margin-bottom: 14px;
+    background: var(--bb-black); border: 1px solid var(--bb-border);
+    border-radius: 8px; color: var(--bb-text); font-size: .95rem;
+  }
+  .bb-input:focus { outline: none; border-color: var(--bb-lilac); }
+  .bb-btn {
+    width: 100%; padding: 12px; margin-top: 8px;
+    background: var(--bb-lilac); color: var(--bb-black);
+    border: 0; border-radius: 8px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: .2s;
+  }
+  .bb-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .bb-fake-link { color: var(--bb-muted); font-size: .85rem; text-align: center; margin-top: 16px; }
+
+  /* SCREEN 2: BIRTHDAY REVEAL - YOUR LILAC VIBE */
+  .reveal { overflow-y: auto; align-items: start; }
+  .container { max-width: 800px; width: 100%; padding: 80px 24px; }
+  .glass {
+    background: rgba(245,245,247,0.05); border: 1px solid rgba(245,245,247,0.1);
+    backdrop-filter: blur(16px); border-radius: 24px; padding: 28px;
+  }
+  h2 { font-size: 2.6rem; margin: 0 0 8px; font-family: 'Playfair Display', serif; }
+  .kicker { color: var(--bb-lilac); font-weight: 800; letter-spacing: .1em; font-size: .8rem; }
+
+  .photo-wrap { 
+    max-width: 420px; 
+    margin: 28px auto 0; 
+    overflow: hidden; 
+    border-radius: 20px; 
+    border: 1px solid rgba(191,162,255,.25);
+    background: #000;
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  .photo-wrap.animate-in {
+    animation: slideDown .9s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  @keyframes slideDown {
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .label { text-align: center; font-weight: 700; margin-top: 10px; color: var(--bb-muted); }
+
+  .vs-caption { 
+    text-align:center; 
+    color:var(--bb-muted); 
+    margin-top:16px; 
+    font-size: 1.05rem; 
+    line-height: 1.7;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .vs-caption.show {
+    animation: fadeUp .6s ease .9s forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter { line-height: 1.8; color: var(--bb-muted); font-size: 1.1rem; margin-top: 28px; }
+  footer { text-align: center; color: var(--bb-muted); padding: 40px 0; }
+
+  .confetti { position: fixed; width: 8px; height: 14px; top: -20px; opacity: 0; animation: fall 3.5s linear forwards; border-radius: 2px; }
+  @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: FAKE BLACKBOARD LOGIN -->
+<section id="screen1" class="screen">
+  <div class="bb-card">
+    <div class="bb-logo">
+      <div class="bb-logo-dot"></div>
+      <div class="bb-logo-text">Blackboard Learn</div>
+    </div>
+    <h1 class="bb-title">Sign in to Blackboard</h1>
+    <p class="bb-sub">Use your student credentials to continue</p>
+    
+    <input class="bb-input" type="text" placeholder="Username" value="kuhle.m" readonly>
+    <input class="bb-input" type="password" placeholder="Password" value="••••" readonly>
+    
+    <button class="bb-btn" onclick="reveal()">Log In</button>
+    <div class="bb-fake-link">Forgot password? Trouble signing in?</div>
+  </div>
+</section>
+
+<!-- SCREEN 2: BIRTHDAY REVEAL -->
+<section id="screen2" class="screen reveal hidden">
+  <div class="container">
+    <span class="kicker">BELATED, BUT ON PURPOSE NOW</span>
+    <h2>Happy Birthday, Kuhle 💜</h2>
+    <p style="color:var(--bb-muted); margin:0 0 8px;">Wrong password. Right surprise 😏</p>
+
+    <!-- SINGLE PHOTO WITH ANIMATION -->
+    <div class="glass">
+      <h3 style="margin:0 0 12px; text-align:center;">2026</h3>
+      <div class="photo-wrap" id="photoWrap">
+        <div class="photo-card">
+          <img src="attachment://0" alt="Kuhle Graduation 2026">
+        </div>
+        <div class="label">The woman you’ve become</div>
+      </div>
+      <p class="vs-caption" id="caption">
+        you'll have to excuse the rugged nature of this project but it was done on the fly could not delay it any longer br>But you’ve grown in the most important of ways. I’m very proud of the woman you’ve become.
+      </p>
+    </div>
+
+    <!-- BIRTHDAY LETTER -->
+    <div class="glass letter">
+      <p>Hey Kuhle,Happy Birthday My Friend</p>
+      <p>
+        Real talk: I had July in my head, so I missed it by 7 days ☹️ 
+        But I didn’t want to just send “sorry I’m late” and leave it there. 
+        So I built you this instead. Okay, here we go, and it'd be crazy if I waited any longer to do this, so here goes! It's all you today. I'll try my best to keep this short, as much as I can, as I can get carried away when it comes to expressing things  😅
+        Anyways,
+Happy birthday to you, bestie, and my favorite person of them all, Kuhle! 🎉🎂 I wish you a fantastic day filled with happiness, love, and warmth. God bless you with many more years and better luck. 😅
+You're the sunshine that brightens up my day and the stars that light up my night. You mean everything to me, and I'm so grateful to have you in my life. You're the best human being I've ever met kind, caring, and loving. Grow, but never change, mntase! ❤️
+You know it all and have seen it all. I love you more than words can express, more than cakes and candies, more than all the gifts in the world! You're the best friend I could have ever wished for, Kuhle.
+Here's to another amazing year to you and plenty more to come! 🎁💕🎉 I love you, ke mntase, and you enjoy your day! ❤️ Let's celebrate with cake and bottoms if need be! 🎂
+
+ Welcome to the 24th club! 😅❤️
+      <p>Love you lots,<br>– Migcobo</p>
+    </div>
+
+    <footer>7 days late, 0 regrets. You’re worth the wait 💜</footer>
+  </div>
+</section>
+
+<script>
+  function reveal() {
+    document.getElementById('screen1').classList.add('hidden');
+    document.getElementById('screen2').classList.remove('hidden');
+    document.body.style.overflow = 'auto';
+    confetti();
+    
+    setTimeout(() => {
+      document.getElementById('photoWrap').classList.add('animate-in');
+      document.getElementById('caption').classList.add('show');
+    }, 100);
+  }
+
+  function confetti() {
+    const colors = ['#bfa2ff','#ffffff','#d8c8ff','#0a0a0f','#ffe07a'];
+    for(let i=0;i<140;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*100+'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDelay = Math.random()*0.6+'s';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),3500);
+    }
+  }
+</script>
+</body>
+</html>
